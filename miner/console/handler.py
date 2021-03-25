@@ -69,7 +69,7 @@ class ConsoleHandler:
         """
         parameters = self._parser.parse_args(args)
 
-        if parameters.command is None:
+        if parameters.site is None:
             self._parser.error("You must specify a command: habr")
 
         return parameters
@@ -77,3 +77,19 @@ class ConsoleHandler:
     @property
     def command(self) -> str:
         return self._parameters.command
+
+    @property
+    def host(self) -> str:
+        if (host := self._parameters.host) is None:
+            self._parser.error("hostname of Elasticsearch server wasn't specify, please, enter it or set ES_HOST "
+                               "environment value")
+
+        return host
+
+    @property
+    def port(self) -> str:
+        if (port := self._parameters.port) is None:
+            self._parser.error("port of Elasticsearch server wasn't specify, please, enter it or set ES_PORT "
+                               "environment value")
+
+        return port
