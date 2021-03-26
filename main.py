@@ -13,7 +13,7 @@ def main():
         print("The hostname or port of the Elasticsearch server is incorrect, please check it", file=sys.stderr)
         exit(-1)
 
-    parser = Parser(10, timeout=0)
+    parser = Parser(count=console_handler.count, min_post=console_handler.min_post, max_post=console_handler.max_post)
     parser.parse(database=db)
 
 
