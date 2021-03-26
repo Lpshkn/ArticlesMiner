@@ -1,5 +1,4 @@
 import elasticsearch
-import datetime
 from miner.database.model import Article
 
 
@@ -29,14 +28,15 @@ class Database:
     def connection(self):
         return self._es
 
-    def add(self, author: str, text: str, /, title: str = None, date: datetime.datetime = None):
+    def add(self, doc_id: int, author: str, text: str, /, title: str = None, date: str = None):
         """
         Method inserts new document in the index.
 
+        :param doc_id: the id of the document
         :param author: the nickname of the author
         :param text: the body of the document
         :param title: the title of the document
         :param date: the date of creating
         """
-        article = Article(author=author, text=text, title=title, date=date)
+        article = Article(meta={'id': doc_id}, author=author, text=text, title=title, date=date)
         article.save(using=self.connection)
