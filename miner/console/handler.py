@@ -47,12 +47,12 @@ class ConsoleHandler:
 
         habr.add_argument('--min_post',
                           help='the number of the first post to be parsed from',
-                          default='1',
-                          type=str)
+                          default=1,
+                          type=int)
 
         habr.add_argument('--max_post',
                           help='the number of the post to which the parsing will be performed',
-                          type=str)
+                          type=int)
 
         habr.add_argument('-c', '--count',
                           help='the count of parsed articles',
