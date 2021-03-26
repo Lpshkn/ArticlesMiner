@@ -18,7 +18,7 @@ class Parser:
     TITLE_CLASS = "post__title-text"
     TEXT_CLASS = "post__text"
 
-    def __init__(self, count: int, min_post: int = 1, max_post: int = 1000000, timeout: int = 1):
+    def __init__(self, count: int = None, min_post: int = 1, max_post: int = 1000000, timeout: int = 0):
         """
         :param count: the count of posts that will be inserted in the index
         :param min_post: the number of the first post to be parsed from
@@ -48,7 +48,7 @@ class Parser:
         begin_time = datetime.now()
 
         for post_number in range(self._min_post, self._max_post + 1):
-            if count >= self._count:
+            if self._count and count >= self._count:
                 break
 
             url = self.URL.format(post_number=post_number)
