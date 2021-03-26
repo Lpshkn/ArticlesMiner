@@ -52,6 +52,7 @@ class ConsoleHandler:
 
         habr.add_argument('--max_post',
                           help='the number of the post to which the parsing will be performed',
+                          default=1000000,
                           type=int)
 
         habr.add_argument('-c', '--count',
@@ -93,3 +94,15 @@ class ConsoleHandler:
                                "environment value")
 
         return port
+
+    @property
+    def count(self) -> int:
+        return self._parameters.count
+
+    @property
+    def min_post(self) -> int:
+        return self._parameters.min_post
+
+    @property
+    def max_post(self) -> int:
+        return self._parameters.max_post
