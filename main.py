@@ -1,10 +1,11 @@
 import sys
+import asyncio
 from miner.console.handler import ConsoleHandler
 from miner.database.db import Database
 from miner.habr.parser import Parser
 
 
-def main():
+async def main():
     console_handler = ConsoleHandler(sys.argv[1:])
     db = None
     try:
@@ -13,9 +14,11 @@ def main():
         print("The hostname or port of the Elasticsearch server is incorrect, please check it", file=sys.stderr)
         exit(-1)
 
-    parser = Parser(count=console_handler.count, min_post=console_handler.min_post, max_post=console_handler.max_post)
-    parser.parse(database=db)
+    parser = Parser(database=db, timeout=1, concurrent=8)
+    await parser.parse(count=console_handler.count,
+                       min_post=console_handler.min_post, max_post=console_handler.max_post)
 
 
 if __name__ == '__main__':
-    main()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
