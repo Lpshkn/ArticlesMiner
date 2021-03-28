@@ -1,4 +1,3 @@
-import time
 import requests
 import bs4
 import logging
@@ -26,7 +25,7 @@ class Parser:
         """
         :param database: the object of Database
         :param timeout: timeout to make request in seconds
-        :param concurrent:
+        :param concurrent: count of concurrent tasks: it may be speed up the process of parsing
         """
         self._database = database
         self._timeout = timeout
