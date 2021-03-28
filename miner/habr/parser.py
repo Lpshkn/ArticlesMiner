@@ -2,7 +2,9 @@ import time
 import requests
 import bs4
 import logging
+import asyncio
 from miner.database.db import Database
+from miner.utils import get_sublists
 from datetime import datetime
 
 logging.basicConfig(format="[%(asctime)s] %(msg)s",
@@ -48,15 +50,24 @@ class Parser:
         :param min_post: the number of the first post to be parsed from
         :param max_post: the number of the post to which the parsing will be performed
         """
-        incorrect_count = 0
-        count = 0
-
         # Run a timer
         logging.warning("Parsing beginning...")
         begin_time = datetime.now()
 
-        for post_number in range(self._min_post, self._max_post + 1):
-            if self._count and count >= self._count:
+        sublists = get_sublists(list(range(min_post, max_post + 1)), self._concurrent)
+        tasks = []
+        for sublist in sublists:
+            tasks.append(self._parse(sublist, count))
+        await asyncio.gather(*tasks)
+
+        logging.warning('Parsing was completed')
+        logging.warning(f'Work time: {datetime.now() - begin_time}')
+
+    async def _parse(self, post_numbers: list[int], count: int):
+        incorrect_count = 0
+
+        for post_number in post_numbers:
+            if count and self._count >= count:
                 break
 
             url = self.URL.format(post_number=post_number)
@@ -68,7 +79,7 @@ class Parser:
                 incorrect_count = 0
 
                 # The count of correct parsed posts
-                count += 1
+                self._count += 1
 
                 bs = bs4.BeautifulSoup(response.text, features='html.parser')
                 author = bs.find(class_=self.USERNAME_CLASS).text
@@ -76,11 +87,11 @@ class Parser:
                 title = bs.find(class_=self.TITLE_CLASS).text
                 text = bs.find(class_=self.TEXT_CLASS).text
 
-                logging.warning(f"(#{count}) id={post_number} {author}: {title}")
+                logging.warning(f"(#{self._count}) id={post_number} {author}: {title}")
 
-                database.add(post_number, author, text, title, post_date)
+                self._database.add(post_number, author, text, title, post_date)
             elif response.status_code == 404:
-                logging.warning(f"(#{count}) id={post_number} Error 404")
+                logging.warning(f"(#{self._count}) id={post_number} Error 404")
 
                 # Increase the counter of incorrect requests
                 incorrect_count += 1
@@ -88,10 +99,7 @@ class Parser:
                 if incorrect_count == self._limit_incorrect:
                     break
             else:
-                logging.warning(f"(#{count}) id={post_number} Error {response.status_code}")
+                logging.warning(f"(#{self._count}) id={post_number} Error {response.status_code}")
 
             # Take the timeout to avoid a ban
-            time.sleep(self._timeout)
-
-        logging.warning('Parsing was completed')
-        logging.warning(f'Work time: {datetime.now() - begin_time}')
+            await asyncio.sleep(self._timeout)
