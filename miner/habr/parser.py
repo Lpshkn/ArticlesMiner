@@ -5,7 +5,6 @@ import logging
 from miner.database.db import Database
 from datetime import datetime
 
-
 logging.basicConfig(format="[%(asctime)s] %(msg)s",
                     level=logging.WARNING)
 
@@ -18,27 +17,36 @@ class Parser:
     TITLE_CLASS = "post__title-text"
     TEXT_CLASS = "post__text"
 
-    def __init__(self, count: int = None, min_post: int = 1, max_post: int = 1000000, timeout: int = 0):
+    def __init__(self,
+                 database: Database,
+                 timeout: int = 0,
+                 concurrent: int = 4):
         """
-        :param count: the count of posts that will be inserted in the index
-        :param min_post: the number of the first post to be parsed from
-        :param max_post: the number of the post to which the parsing will be performed
+        :param database: the object of Database
         :param timeout: timeout to make request in seconds
+        :param concurrent:
         """
-        self._count = count
-        self._min_post = min_post
-        self._max_post = max_post
+        self._database = database
         self._timeout = timeout
+        self._concurrent = concurrent
+
+        # The count of processed and indexed posts
+        self._count = 0
 
         # Count of incorrect consecutive requests
         # This case allows to determine the max id among all the posts from the site
         self._limit_incorrect = 15
 
-    def parse(self, database: Database):
+    async def parse(self,
+                    count: int = None,
+                    min_post: int = 1,
+                    max_post: int = 1000000):
         """
         Method parses the posts from habr.com and inserts them as documents in the Elasticsearch cluster.
 
-        :param database: the object of Database
+        :param count: the count of posts that will be inserted in the index
+        :param min_post: the number of the first post to be parsed from
+        :param max_post: the number of the post to which the parsing will be performed
         """
         incorrect_count = 0
         count = 0
