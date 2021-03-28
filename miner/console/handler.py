@@ -36,12 +36,10 @@ class ConsoleHandler:
                                      help='parse Habr.com')
         habr.add_argument('-host',
                           help='the host address of the Elasticsearch cluster',
-                          default=os.getenv('ES_HOST'),
                           type=str)
 
         habr.add_argument('-port',
                           help='the port of the Elasticsearch cluster',
-                          default=os.getenv('ES_PORT'),
                           type=str)
 
         habr.add_argument('--min_post',
@@ -91,16 +89,20 @@ class ConsoleHandler:
     @property
     def host(self) -> str:
         if (host := self._parameters.host) is None:
-            self._parser.error("hostname of Elasticsearch server wasn't specify, please, enter it or set ES_HOST "
-                               "environment value")
+            host = os.getenv('ES_HOST')
+            if host is None:
+                self._parser.error("hostname of Elasticsearch server wasn't specify, please, enter it or set ES_HOST "
+                                   "environment value")
 
         return host
 
     @property
     def port(self) -> str:
         if (port := self._parameters.port) is None:
-            self._parser.error("port of Elasticsearch server wasn't specify, please, enter it or set ES_PORT "
-                               "environment value")
+            port = os.getenv("ES_PORT")
+            if port is None:
+                self._parser.error("port of Elasticsearch server wasn't specify, please, enter it or set ES_PORT "
+                                   "environment value")
 
         return port
 
