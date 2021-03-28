@@ -4,7 +4,6 @@ Also module implements a class containing information about the project and all 
 will be printed in the command line.
 """
 import os
-import re
 import argparse
 
 
