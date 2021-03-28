@@ -58,6 +58,16 @@ class ConsoleHandler:
                           help='the count of parsed articles',
                           type=int)
 
+        habr.add_argument('--concurrent',
+                          help='count of concurrent tasks: it may be speed up the process of parsing',
+                          type=int,
+                          default=4)
+
+        habr.add_argument('-t', '--timeout',
+                          help='timeout to make request in seconds',
+                          type=int,
+                          default=0)
+
         return parser
 
     def _get_parameters(self, args):
@@ -105,3 +115,11 @@ class ConsoleHandler:
     @property
     def max_post(self) -> int:
         return self._parameters.max_post
+
+    @property
+    def timeout(self) -> int:
+        return self._parameters.timeout
+
+    @property
+    def concurrent(self) -> int:
+        return self._parameters.concurrent
